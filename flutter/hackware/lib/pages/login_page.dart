@@ -10,6 +10,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  bool _isEmailFocused = false;
+
   double? _deviceHeight, _deviceWidth;
 
   FirebaseService? _firebaseService;
@@ -38,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _titleWidget(),
+              _headerWidget(),
               _loginForm(),
               _loginButton(),
               _registerPageLink()
@@ -49,11 +52,49 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _titleWidget() {
-    return const Text(
-      'Eco Soil',
-      style: TextStyle(
-          color: Colors.black, fontSize: 25, fontWeight: FontWeight.w600),
+  Widget _headerWidget() {
+    return Column(
+      children: [
+        Container(
+          width: _deviceWidth! * 0.5,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Text(
+            "Eco Soil",
+            style: TextStyle(
+              color: Colors.green,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.green.shade200,
+          ),
+          child: Center(
+            child: Icon(
+              Icons.eco,
+              size: 50,
+              color: Colors.green.shade700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -72,47 +113,102 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _emailTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(hintText: "Email..."),
-      onSaved: (_value) {
-        setState(() {
-          _email = _value;
-        });
-      },
-      validator: (_value) {
-        bool _result = _value!.contains(
-          RegExp(
-              r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
-        );
-        return _result ? null : "Please enter a valid email";
-      },
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+        decoration: const InputDecoration(
+          icon: Icon(Icons.email),
+          labelText: "Email",
+          hintText: "example@domain.com",
+          border: InputBorder.none,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          labelStyle: TextStyle(
+              color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
+        ),
+        onSaved: (_value) {
+          setState(() {
+            _email = _value;
+          });
+        },
+        validator: (_value) {
+          bool _result = _value!.contains(
+            RegExp(
+                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
+          );
+          return _result ? null : "Please enter a valid email";
+        },
+      ),
     );
   }
 
   Widget _passwordTextField() {
-    return TextFormField(
-        obscureText: true,
-        decoration: const InputDecoration(hintText: "Password..."),
-        onSaved: (_value) {
-          setState(() {
-            _password = _value;
-          });
-        },
-        validator: (_value) => _value!.length > 6
-            ? null
-            : "Please enter a password greater than 6 char");
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+          obscureText: true,
+          decoration: const InputDecoration(
+            icon: Icon(Icons.password),
+            labelText: "Password",
+            hintText: "Enter a strong password...",
+            border: InputBorder.none,
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            labelStyle: TextStyle(
+                color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          onSaved: (_value) {
+            setState(() {
+              _password = _value;
+            });
+          },
+          validator: (_value) => _value!.length > 6
+              ? null
+              : "Please enter a password greater than 6 char"),
+    );
   }
 
   Widget _loginButton() {
-    return MaterialButton(
-      onPressed: _loginUser,
-      minWidth: _deviceWidth! * 0.7,
+    return Container(
+      width: _deviceWidth! * 0.7,
       height: _deviceHeight! * 0.06,
-      color: Colors.red,
-      child: const Text(
-        "Login",
-        style: TextStyle(
-            color: Colors.white, fontSize: 25, fontWeight: FontWeight.w600),
+      decoration: BoxDecoration(
+        color: Colors.green,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: MaterialButton(
+        onPressed: _loginUser,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Text(
+          "Login",
+          style: TextStyle(
+              color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
@@ -120,10 +216,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget _registerPageLink() {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, 'register'),
-      child: const Text(
+      child: Text(
         "Don't have an account?",
         style: TextStyle(
-            color: Colors.blue, fontSize: 15, fontWeight: FontWeight.w200),
+            color: Colors.blue.shade600,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            decoration: TextDecoration.underline),
       ),
     );
   }

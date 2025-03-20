@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'EcoSoil',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.green.shade100,
+        scaffoldBackgroundColor: Colors.green.shade200,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,

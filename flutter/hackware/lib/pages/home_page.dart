@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hackware/pages/about_us_page.dart';
 import 'package:hackware/pages/main_page.dart';
+import 'package:hackware/services/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,7 +15,15 @@ class _HomePageState extends State<HomePage> {
   int _currentPage = 0;
   double? _deviceHeight, _deviceWidth;
 
+  FirebaseService? _firebaseService;
+
   final List<Widget> _pages = [MainPage(), AboutUs()];
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseService = GetIt.instance.get<FirebaseService>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +47,21 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           color: Colors.white,
           child: AppBar(
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: GestureDetector(
+                  onTap: () async {
+                    await _firebaseService!.logout();
+                    Navigator.popAndPushNamed(context, 'login');
+                  },
+                  child: Icon(
+                    Icons.logout,
+                    color: Colors.green,
+                  ),
+                ),
+              )
+            ],
             title: const Text(
               "Eco Soil",
               style: TextStyle(

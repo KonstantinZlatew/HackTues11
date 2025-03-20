@@ -55,4 +55,8 @@ class FirebaseService {
         await _db.collection(USER_COLLECTION).doc(uid).get();
     return _doc.data() as Map;
   }
+
+  Future<void> logout() async {
+    await _auth.signOut();
+  }
 }
