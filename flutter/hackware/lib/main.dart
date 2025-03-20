@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:hackware/pages/home_page.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hackware/pages/login_page.dart';
+import 'package:hackware/pages/register_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -25,7 +27,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      initialRoute: 'login',
+      routes: {
+        'register' : (context) => RegisterPage(),
+        'login' : (context) => LoginPage(),
+      },
     );
   }
 }
