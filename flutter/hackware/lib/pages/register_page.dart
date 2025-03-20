@@ -36,17 +36,85 @@ class _RegisterPageState extends State<RegisterPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [_titleWidget(), _registrationForm(), _registerButton()],
+          children: [_headerWidget(), _registrationForm(), _registerButton()],
         ),
       ),
     )));
   }
 
-  Widget _titleWidget() {
-    return const Text(
-      "Eco Soil",
-      style: TextStyle(
-          fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+  Widget _headerWidget() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 60,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.green,
+                    size: 40,
+                  )),
+            ),
+            SizedBox(
+              width: _deviceWidth! * 0.07,
+            ),
+            Container(
+              width: _deviceWidth! * 0.5,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Text(
+                "Eco Soil",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.green.shade200,
+          ),
+          child: Center(
+            child: Icon(
+              Icons.eco,
+              size: 50,
+              color: Colors.green.shade700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -69,59 +137,136 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _nameTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(hintText: "Name..."),
-      validator: (_value) => _value!.length > 0 ? null : "please enter a name.",
-      onSaved: (_value) {
-        setState(() {
-          _name = _value;
-        });
-      },
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+        decoration: const InputDecoration(
+          icon: Icon(Icons.person),
+          labelText: "Name",
+          hintText: "e.g. Jane Smith",
+          border: InputBorder.none,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          labelStyle: TextStyle(
+              color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
+        ),
+        validator: (_value) =>
+            _value!.length > 0 ? null : "please enter a name.",
+        onSaved: (_value) {
+          setState(() {
+            _name = _value;
+          });
+        },
+      ),
     );
   }
 
   Widget _emailTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(hintText: "Email..."),
-      onSaved: (_value) {
-        setState(() {
-          _email = _value;
-        });
-      },
-      validator: (_value) {
-        bool _result = _value!.contains(
-          RegExp(
-              r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
-        );
-        return _result ? null : "Please enter a valid email";
-      },
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+        decoration: const InputDecoration(
+          icon: Icon(Icons.email),
+          labelText: "Email",
+          hintText: "example@domain.com",
+          border: InputBorder.none,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          labelStyle: TextStyle(
+              color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
+        ),
+        onSaved: (_value) {
+          setState(() {
+            _email = _value;
+          });
+        },
+        validator: (_value) {
+          bool _result = _value!.contains(
+            RegExp(
+                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
+          );
+          return _result ? null : "Please enter a valid email";
+        },
+      ),
     );
   }
 
   Widget _passwordTextField() {
-    return TextFormField(
-        obscureText: true,
-        decoration: const InputDecoration(hintText: "Password..."),
-        onSaved: (_value) {
-          setState(() {
-            _password = _value;
-          });
-        },
-        validator: (_value) => _value!.length > 6
-            ? null
-            : "Please enter a password greater than 6 char");
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+          obscureText: true,
+          decoration: const InputDecoration(
+            icon: Icon(Icons.password),
+            labelText: "Password",
+            hintText: "Enter a strong password...",
+            border: InputBorder.none,
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            labelStyle: TextStyle(
+                color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          onSaved: (_value) {
+            setState(() {
+              _password = _value;
+            });
+          },
+          validator: (_value) => _value!.length > 6
+              ? null
+              : "Please enter a password greater than 6 char"),
+    );
   }
 
   Widget _registerButton() {
-    return MaterialButton(
-      onPressed: _registerUser,
-      minWidth: _deviceWidth! * 0.50,
-      height: _deviceHeight! * 0.05,
-      color: Colors.red,
-      child: const Text(
-        "Register",
-        style: TextStyle(
-            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400),
+    return Container(
+      width: _deviceWidth! * 0.7,
+      height: _deviceHeight! * 0.06,
+      decoration: BoxDecoration(
+        color: Colors.green,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: MaterialButton(
+        onPressed: _registerUser,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Text(
+          "Register",
+          style: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400),
+        ),
       ),
     );
   }

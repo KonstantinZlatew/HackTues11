@@ -10,9 +10,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
-  bool _isEmailFocused = false;
-
   double? _deviceHeight, _deviceWidth;
 
   FirebaseService? _firebaseService;
