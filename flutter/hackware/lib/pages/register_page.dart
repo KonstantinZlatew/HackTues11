@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hackware/services/firebase_service.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -11,7 +13,15 @@ class _RegisterPageState extends State<RegisterPage> {
   double? _deviceHeight, _deviceWidth;
   final GlobalKey<FormState> _registerFormState = GlobalKey<FormState>();
 
+  FirebaseService? _firebaseService;
+
   String? _name, _email, _password;
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseService = GetIt.instance.get<FirebaseService>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,14 +126,12 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void _registerUser() {
-    if (_registerFormState.currentState!.validate()) {
-      print(true);
-    } else {
-      print(false);
-    }
+  void _registerUser() async {
     if (_registerFormState.currentState!.validate()) {
       _registerFormState.currentState!.save();
+      bool _result = await _firebaseService!
+          .registerUser(name: _name!, email: _email!, password: _password!);
+      if (_result) Navigator.pop(context);
     }
   }
 }
