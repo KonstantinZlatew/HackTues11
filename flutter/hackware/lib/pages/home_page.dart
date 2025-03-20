@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                     child: Icon(Icons.eco),
                   )),
               BottomNavigationBarItem(
-                label: 'About us',
+                label: 'About',
                 icon: Padding(
                   padding: EdgeInsets.only(top: 5.0),
                   child: Icon(
