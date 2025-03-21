@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hackware/pages/about_us_page.dart';
+import 'package:hackware/pages/chat_page.dart';
 import 'package:hackware/pages/main_page.dart';
 import 'package:hackware/services/firebase_service.dart';
 
@@ -12,12 +13,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentPage = 0;
+  int _currentPage = 1;
   double? _deviceHeight, _deviceWidth;
 
   FirebaseService? _firebaseService;
 
-  final List<Widget> _pages = [MainPage(), AboutUs()];
+  final List<Widget> _pages = [ChatPage(), MainPage(), AboutUs()];
 
   @override
   void initState() {
@@ -99,6 +100,12 @@ class _HomePageState extends State<HomePage> {
               });
             },
             items: const [
+              BottomNavigationBarItem(
+                  label: 'Chat',
+                  icon: Padding(
+                    padding: EdgeInsets.only(top: 5.0),
+                    child: Icon(Icons.chat),
+                  )),
               BottomNavigationBarItem(
                   label: 'Home',
                   icon: Padding(

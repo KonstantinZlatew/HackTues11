@@ -16,7 +16,8 @@ class _MainPageState extends State<MainPage> {
   Map<String, dynamic>? sensorData;
   bool isLoading = true;
 
-  final String webSocketUrl = 'ws://192.168.45.134:8080';
+  //final String webSocketUrl = 'ws://192.168.45.134:8080'; // hotspot ip
+  final String webSocketUrl = 'ws://192.168.100.106:8080'; // home ip
   // final String webSocketUrl = 'ws://10.0.2.2:8080';  // For Android Emulator
 
   @override
@@ -74,27 +75,27 @@ class _MainPageState extends State<MainPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Align(
-          heightFactor: 2,
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 20,
-            ),
-            child: IconButton(
-              onPressed: _connectToWebSocket,
-              icon: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.refresh,
-                  color: Colors.green,
-                  size: 30,
-                ),
-              ),
-            ),
-          ),
-        ),
+        // Align(
+        //   heightFactor: 2,
+        //   alignment: Alignment.topLeft,
+        //   child: Padding(
+        //     padding: const EdgeInsets.only(
+        //       left: 20,
+        //     ),
+        //     child: IconButton(
+        //       onPressed: _connectToWebSocket,
+        //       icon: CircleAvatar(
+        //         radius: 30,
+        //         backgroundColor: Colors.white,
+        //         child: Icon(
+        //           Icons.refresh,
+        //           color: Colors.green,
+        //           size: 30,
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         Container(
           width: 200,
           padding: EdgeInsets.all(8),
