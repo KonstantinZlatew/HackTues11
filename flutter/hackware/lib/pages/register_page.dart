@@ -44,6 +44,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _headerWidget() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [
@@ -120,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _registrationForm() {
     return Container(
-      height: _deviceHeight! * 0.3,
+      height: _deviceHeight! * 0.35,
       child: Form(
           key: _registerFormState,
           child: Column(
@@ -138,6 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _nameTextField() {
     return Container(
+      height: _deviceHeight! * 0.1,
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -172,6 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _emailTextField() {
     return Container(
+      height: _deviceHeight! * 0.1,
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -216,6 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _passwordTextField() {
     return Container(
+        height: _deviceHeight! * 0.1,
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -247,7 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
             if (_value!.length == 0)
               return "Please enter a password!";
             else if (_value!.length < 6)
-              return "Enter a password longer than 6 characters";
+              return "Enter a password longer than  6characters";
             else
               return null;
           },

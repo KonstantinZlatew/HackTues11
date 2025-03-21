@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _loginForm() {
     return Container(
-      height: _deviceHeight! * 0.2,
+      height: _deviceHeight! * 0.23,
       child: Form(
           key: _loginFormKey,
           child: Column(
@@ -117,6 +117,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _emailTextField() {
     return Container(
+      height: _deviceHeight! * 0.1,
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -161,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _passwordTextField() {
     return Container(
-        height: _deviceHeight! * 0.08,
+        height: _deviceHeight! * 0.1,
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -248,7 +249,34 @@ class _LoginPageState extends State<LoginPage> {
       bool _result = await _firebaseService!
           .loginUser(email: _email!, password: _password!);
 
-      if (_result) Navigator.popAndPushNamed(context, 'home');
+      if (_result)
+        Navigator.popAndPushNamed(context, 'home');
+      else {
+        setState(() {
+          _email = "";
+          _password = "";
+        });
+        _loginFormKey.currentState!.reset();
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext _context) {
+              return AlertDialog(
+                  backgroundColor: Colors.red,
+                  title: Row(
+                    children: [
+                      Icon(Icons.cancel_sharp, color: Colors.white, size: 30),
+                      SizedBox(width: 10),
+                      Text(
+                        "Invalid credentials!",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ));
+            });
+        await Future.delayed(const Duration(seconds: 2));
+        Navigator.pop(context);
+      }
     }
   }
 }
