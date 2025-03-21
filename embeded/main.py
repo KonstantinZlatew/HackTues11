@@ -3,6 +3,14 @@ import websockets
 import json
 import random
 from langflow.load import run_flow_from_json
+import os
+from dotenv import load_dotenv
+
+# Load the .env file
+load_dotenv("AI_secret_key.env")
+
+# Get the API key
+api_key = os.getenv("OpenAI_API_Key")
 
 # Server configuration
 SERVER_HOST = "0.0.0.0"

@@ -937,7 +937,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "api_key",
-                "value": "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",
+                "value": "OPEN_AI_API_KEY",
                 "display_name": "OpenAI API Key",
                 "advanced": false,
                 "input_types": [
@@ -1688,7 +1688,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "api_endpoint",
-                "value": "https://d6953ed8-3914-4b38-8d8b-d0104be21b1d-us-east-2.apps.astra.datastax.com",
+                "value": "ASTRA_DB_API_KEY",
                 "display_name": "API Endpoint",
                 "advanced": false,
                 "input_types": [
@@ -2457,7 +2457,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "openai_api_key",
-                "value": "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",
+                "value": "OPEN_AI_API_KEY",
                 "display_name": "OpenAI API Key",
                 "advanced": false,
                 "input_types": [
