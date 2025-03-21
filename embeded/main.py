@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 import random
+from langflow.load import run_flow_from_json
 
 # Server configuration
 SERVER_HOST = "0.0.0.0"
@@ -23,12 +24,18 @@ temperature_values = ["22°C", "23°C", "25°C", "20°C", "24°C"]
 humidity_values = ["45%", "50%", "55%", "60%", "65%"]
 
 # AI Chat Responses
-ai_responses = {
-    "tomato": "Tomatoes require well-drained soil with a pH of 6.2 to 6.8. Ensure proper nitrogen levels and provide ample sunlight for best growth.",
-    "potato": "Potatoes grow best in loose, well-drained soil with a pH between 5.0 and 6.0. They need moderate nitrogen and high phosphorus and potassium levels.",
-    "best crop for sandy soil": "Sandy soil is well-suited for crops like carrots, radishes, peanuts, and watermelon because it drains well and warms up quickly."
-}
+# ai_responses = {
+#     "tomato": "Tomatoes require well-drained soil with a pH of 6.2 to 6.8. Ensure proper nitrogen levels and provide ample sunlight for best growth.",
+#     "potato": "Potatoes grow best in loose, well-drained soil with a pH between 5.0 and 6.0. They need moderate nitrogen and high phosphorus and potassium levels.",
+#     "best crop for sandy soil": "Sandy soil is well-suited for crops like carrots, radishes, peanuts, and watermelon because it drains well and warms up quickly."
+# }
 
+def ai_response(question):
+    result = run_flow_from_json(flow="HackTUES11_questions.json",
+                            input_value=question)
+
+    soil_info = result[0].outputs[0].results["message"].text
+    return soil_info
 # ---------------- Soil Sensor Service (PORT 8080) ---------------- #
 
 async def send_sensor_data():
@@ -90,8 +97,11 @@ async def handle_chat_client(websocket):
                 data = json.loads(message)
                 vegetable = data.get("vegetable", "").lower()
 
-                response_text = ai_responses.get(vegetable, "I'm sorry, I don't have information on that vegetable yet.")
-                response = json.dumps({"response": response_text})
+                # response_text = ai_responses.get(vegetable, "I'm sorry, I don't have information on that vegetable yet.")
+
+                await response = ai_response(vegetable)
+
+                response = json.dumps({"response": response})
 
                 await websocket.send(response)
                 print(f"Sent AI response: {response}")
