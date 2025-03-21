@@ -253,7 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
             if (_value!.length == 0)
               return "Please enter a password!";
             else if (_value!.length < 6)
-              return "Enter a password longer than  6characters";
+              return "Enter a password longer than 6 characters";
             else
               return null;
           },
