@@ -203,7 +203,12 @@ class _RegisterPageState extends State<RegisterPage> {
             RegExp(
                 r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
           );
-          return _result ? null : "Please enter a valid email";
+          if (_value.length == 0)
+            return "Please enter an email!";
+          else if (!_result)
+            return "Invalid email format";
+          else
+            return null;
         },
       ),
     );
@@ -211,18 +216,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _passwordTextField() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 8,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: TextFormField(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 8,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: TextFormField(
           obscureText: true,
           decoration: const InputDecoration(
             icon: Icon(Icons.password),
@@ -238,10 +243,15 @@ class _RegisterPageState extends State<RegisterPage> {
               _password = _value;
             });
           },
-          validator: (_value) => _value!.length > 6
-              ? null
-              : "Please enter a password greater than 6 char"),
-    );
+          validator: (_value) {
+            if (_value!.length == 0)
+              return "Please enter a password!";
+            else if (_value!.length < 6)
+              return "Enter a password longer than 6 characters";
+            else
+              return null;
+          },
+        ));
   }
 
   Widget _registerButton() {

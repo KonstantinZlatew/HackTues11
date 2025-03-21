@@ -104,7 +104,13 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [_emailTextField(), _passwordTextField()],
+            children: [
+              _emailTextField(),
+              SizedBox(
+                height: 10,
+              ),
+              _passwordTextField()
+            ],
           )),
     );
   }
@@ -142,7 +148,12 @@ class _LoginPageState extends State<LoginPage> {
             RegExp(
                 r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
           );
-          return _result ? null : "Please enter a valid email";
+          if (_value.length == 0)
+            return "Please enter an email!";
+          else if (!_result)
+            return "Invalid email format";
+          else
+            return null;
         },
       ),
     );
@@ -150,37 +161,44 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _passwordTextField() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 8,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: TextFormField(
-          obscureText: true,
-          decoration: const InputDecoration(
-            icon: Icon(Icons.password),
-            labelText: "Password",
-            hintText: "Enter a strong password...",
-            border: InputBorder.none,
-            floatingLabelBehavior: FloatingLabelBehavior.auto,
-            labelStyle: TextStyle(
-                color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          onSaved: (_value) {
-            setState(() {
-              _password = _value;
-            });
-          },
-          validator: (_value) => _value!.length > 6
-              ? null
-              : "Please enter a password greater than 6 char"),
-    );
+        height: _deviceHeight! * 0.08,
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 8,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: TextFormField(
+            obscureText: true,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.password),
+              labelText: "Password",
+              hintText: "Enter a strong password...",
+              border: InputBorder.none,
+              floatingLabelBehavior: FloatingLabelBehavior.auto,
+              labelStyle: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24),
+            ),
+            onSaved: (_value) {
+              setState(() {
+                _password = _value;
+              });
+            },
+            validator: (_value) {
+              if (_value!.length == 0)
+                return "Please enter a password!";
+              else if (_value!.length < 6)
+                return "Enter a password longer than 6 characters";
+              else
+                return null;
+            }));
   }
 
   Widget _loginButton() {
@@ -229,6 +247,7 @@ class _LoginPageState extends State<LoginPage> {
       _loginFormKey.currentState!.save();
       bool _result = await _firebaseService!
           .loginUser(email: _email!, password: _password!);
+
       if (_result) Navigator.popAndPushNamed(context, 'home');
     }
   }
