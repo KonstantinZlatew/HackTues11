@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -12,42 +12,45 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  late WebSocketChannel channel;
   Map<String, dynamic>? sensorData;
   bool isLoading = true;
+
+  final String webSocketUrl = 'ws://example.com/socket';
 
   @override
   void initState() {
     super.initState();
-    _fetchSensorData();
+    _connectToWebSocket();
   }
 
-  Future<void> _fetchSensorData() async {
-    setState(() {
-      isLoading = true;
-    });
+  void _connectToWebSocket() {
+    channel = WebSocketChannel.connect(Uri.parse(webSocketUrl));
 
-    if (!mounted) return;
+    channel.stream.listen(
+      (data) {
+        Map<String, dynamic> jsonData = jsonDecode(data);
+        setState(() {
+          sensorData = jsonData;
+          isLoading = false; 
+        });
+      },
+      onError: (error) {
+        setState(() {
+          isLoading = false;
+        });
+        print("Error: $error");
+      },
+      onDone: () {
+        print("WebSocket connection closed");
+      },
+    );
+  }
 
-    try {
-      // Simulating data fetch from a local JSON file (or from an API)
-      String _jsonStringPath =
-          await rootBundle.loadString("assets/config/fake_data.json");
-      Map<String, dynamic> data = jsonDecode(_jsonStringPath);
-
-      await Future.delayed(Duration(seconds: 2));
-
-      if (!mounted) return;
-
-      setState(() {
-        sensorData = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print("Error fetching sensor data: $e");
-    }
+  @override
+  void dispose() {
+    channel.sink.close();
+    super.dispose();
   }
 
   @override
@@ -76,7 +79,7 @@ class _MainPageState extends State<MainPage> {
               left: 20,
             ),
             child: IconButton(
-              onPressed: _fetchSensorData,
+              onPressed: _connectToWebSocket,
               icon: CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.white,
