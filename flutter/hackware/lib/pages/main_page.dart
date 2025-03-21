@@ -16,7 +16,8 @@ class _MainPageState extends State<MainPage> {
   Map<String, dynamic>? sensorData;
   bool isLoading = true;
 
-  final String webSocketUrl = 'ws://example.com/socket';
+  final String webSocketUrl = 'ws://192.168.45.134:8080';
+  // final String webSocketUrl = 'ws://10.0.2.2:8080';  // For Android Emulator
 
   @override
   void initState() {
@@ -30,9 +31,11 @@ class _MainPageState extends State<MainPage> {
     channel.stream.listen(
       (data) {
         Map<String, dynamic> jsonData = jsonDecode(data);
+        print(data);
+        print(jsonData);
         setState(() {
           sensorData = jsonData;
-          isLoading = false; 
+          isLoading = false;
         });
       },
       onError: (error) {
