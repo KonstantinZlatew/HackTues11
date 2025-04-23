@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hackware/services/firebase_service.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _LoginPageState();
@@ -14,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
 
   FirebaseService? _firebaseService;
 
-  GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   String? _email;
   String? _password;
 
@@ -30,22 +32,23 @@ class _LoginPageState extends State<LoginPage> {
     _deviceWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
-          child: Container(
-        padding: EdgeInsets.symmetric(horizontal: _deviceWidth! * 0.05),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _headerWidget(),
-              _loginForm(),
-              _loginButton(),
-              _registerPageLink()
-            ],
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: _deviceWidth! * 0.05),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _headerWidget(),
+                _loginForm(),
+                _loginButton(),
+                _registerPageLink()
+              ],
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 
@@ -96,22 +99,21 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _loginForm() {
-    return Container(
+    return SizedBox(
       height: _deviceHeight! * 0.23,
       child: Form(
-          key: _loginFormKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _emailTextField(),
-              SizedBox(
-                height: 10,
-              ),
-              _passwordTextField()
-            ],
-          )),
+        key: _loginFormKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _emailTextField(),
+            SizedBox(height: 10),
+            _passwordTextField()
+          ],
+        ),
+      ),
     );
   }
 
@@ -139,22 +141,10 @@ class _LoginPageState extends State<LoginPage> {
           labelStyle: TextStyle(
               color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        onSaved: (_value) {
+        onSaved: (value) {
           setState(() {
-            _email = _value;
+            _email = value;
           });
-        },
-        validator: (_value) {
-          bool _result = _value!.contains(
-            RegExp(
-                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
-          );
-          if (_value.length == 0)
-            return "Please enter an email!";
-          else if (!_result)
-            return "Invalid email format";
-          else
-            return null;
         },
       ),
     );
@@ -162,44 +152,36 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _passwordTextField() {
     return Container(
-        height: _deviceHeight! * 0.1,
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 8,
-              spreadRadius: 2,
-            ),
-          ],
+      height: _deviceHeight! * 0.1,
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: TextFormField(
+        obscureText: true,
+        decoration: const InputDecoration(
+          icon: Icon(Icons.password),
+          labelText: "Password",
+          hintText: "Enter a strong password...",
+          border: InputBorder.none,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          labelStyle: TextStyle(
+              color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        child: TextFormField(
-            obscureText: true,
-            decoration: const InputDecoration(
-              icon: Icon(Icons.password),
-              labelText: "Password",
-              hintText: "Enter a strong password...",
-              border: InputBorder.none,
-              floatingLabelBehavior: FloatingLabelBehavior.auto,
-              labelStyle: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24),
-            ),
-            onSaved: (_value) {
-              setState(() {
-                _password = _value;
-              });
-            },
-            validator: (_value) {
-              if (_value!.length == 0)
-                return "Please enter a password!";
-              else if (_value!.length < 6)
-                return "Enter a password longer than 6 characters";
-              else
-                return null;
-            }));
+        onSaved: (value) {
+          setState(() {
+            _password = value;
+          });
+        },
+      ),
+    );
   }
 
   Widget _loginButton() {
@@ -218,7 +200,9 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       child: MaterialButton(
-        onPressed: _loginUser,
+        onPressed: () {
+          Navigator.popAndPushNamed(context, 'home'); 
+        },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: const Text(
           "Login",
@@ -241,42 +225,5 @@ class _LoginPageState extends State<LoginPage> {
             decoration: TextDecoration.underline),
       ),
     );
-  }
-
-  void _loginUser() async {
-    if (_loginFormKey.currentState!.validate()) {
-      _loginFormKey.currentState!.save();
-      bool _result = await _firebaseService!
-          .loginUser(email: _email!, password: _password!);
-
-      if (_result)
-        Navigator.popAndPushNamed(context, 'home');
-      else {
-        setState(() {
-          _email = "";
-          _password = "";
-        });
-        _loginFormKey.currentState!.reset();
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext _context) {
-              return AlertDialog(
-                  backgroundColor: Colors.red,
-                  title: Row(
-                    children: [
-                      Icon(Icons.cancel_sharp, color: Colors.white, size: 30),
-                      SizedBox(width: 10),
-                      Text(
-                        "Invalid credentials!",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ));
-            });
-        await Future.delayed(const Duration(seconds: 2));
-        Navigator.pop(context);
-      }
-    }
   }
 }

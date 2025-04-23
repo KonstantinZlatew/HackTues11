@@ -1,123 +1,126 @@
 import asyncio
 import websockets
 import json
-import random
+import serial
+import time
+import openai
+import os
+from dotenv import load_dotenv
 
-# Server configuration
-SERVER_HOST = "0.0.0.0"
-SENSOR_PORT = 8080  # Soil sensor service
-CHAT_PORT = 8081  # AI chat service
+#load_dotenv()
+#api_token = os.getenv("API_KEY")
 
-# Connected WebSocket clients
-sensor_clients = set()
-chat_clients = set()
+api_token="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"
 
-# Dummy sensor data values
-suggested_crops = ["Tomatoes", "Potatoes", "Rice", "Wheat", "Corn"]
-nitrogen_values = ["45 mg/kg", "50 mg/kg", "55 mg/kg", "40 mg/kg", "60 mg/kg"]
-phosphorus_values = ["30 mg/kg", "35 mg/kg", "40 mg/kg", "25 mg/kg", "45 mg/kg"]
-potassium_values = ["50 mg/kg", "55 mg/kg", "60 mg/kg", "45 mg/kg", "70 mg/kg"]
-ph_values = ["6.5", "7.0", "6.8", "7.2", "6.9"]
-ec_values = ["1.2 dS/m", "1.3 dS/m", "1.1 dS/m", "1.5 dS/m", "1.4 dS/m"]
-temperature_values = ["22°C", "23°C", "25°C", "20°C", "24°C"]
-humidity_values = ["45%", "50%", "55%", "60%", "65%"]
+arduino = serial.Serial('COM5', 9600) 
+time.sleep(2)  
+clients = set()
+latest_sensor_data = ""
 
-# AI Chat Responses
-ai_responses = {
-    "tomato": "Tomatoes require well-drained soil with a pH of 6.2 to 6.8. Ensure proper nitrogen levels and provide ample sunlight for best growth.",
-    "potato": "Potatoes grow best in loose, well-drained soil with a pH between 5.0 and 6.0. They need moderate nitrogen and high phosphorus and potassium levels.",
-    "best crop for sandy soil": "Sandy soil is well-suited for crops like carrots, radishes, peanuts, and watermelon because it drains well and warms up quickly."
-}
+# ---------------------- ASYNC OPENAI SUGGESTION ----------------------
+async def suggest_plants(sensor_data: str, api_token: str) -> str:
+    client = openai.AsyncOpenAI(api_key=api_token)
+    prompt = f"""
+    You are a smart agriculture assistant. 
+    Based on the following soil data and context, suggest 2 to 3 suitable plants to grow.
 
-# ---------------- Soil Sensor Service (PORT 8080) ---------------- #
+    Soil data:
+    {sensor_data}
 
-async def send_sensor_data():
-    """Send mock sensor data to connected WebSocket clients."""
-    while True:
-        await asyncio.sleep(20)
-        data = {
-            "Suggested Crop": random.choice(suggested_crops),
-            "Nitrogen (N)": random.choice(nitrogen_values),
-            "Phosphorus (P)": random.choice(phosphorus_values),
-            "Potassium (K)": random.choice(potassium_values),
-            "pH Level": random.choice(ph_values),
-            "Electrical Conductivity (EC)": random.choice(ec_values),
-            "temperature": random.choice(temperature_values),
-            "humidity": random.choice(humidity_values)
-        }
+    Context:
+    Give short answers. I want you also to give short information for what the plant needs such as how many times should I water a plant etc.
+    """
 
-        json_data = json.dumps(data)
-        print(f"Sending sensor data: {json_data}")
-
-        for client in sensor_clients.copy():
-            try:
-                await client.send(json_data)
-            except (websockets.exceptions.ConnectionClosed, Exception) as e:
-                print(f"Error sending to client: {e}")
-                sensor_clients.remove(client)
-
-async def handle_sensor_client(websocket):
-    """Handle a new WebSocket client for sensor data."""
-    print(f"New sensor client connected: {websocket.remote_address}")
-    sensor_clients.add(websocket)
-    
     try:
-        while True:
-            await websocket.recv()  # Just keep the connection alive
-    except websockets.exceptions.ConnectionClosed:
-        print(f"Sensor client {websocket.remote_address} disconnected")
-    finally:
-        sensor_clients.remove(websocket)
+        response = await client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=300
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error: {e}"
 
-async def start_sensor_server():
-    """Start WebSocket server for sensor data."""
-    server = await websockets.serve(handle_sensor_client, SERVER_HOST, SENSOR_PORT)
-    print(f"Sensor data WebSocket server listening on {SERVER_HOST}:{SENSOR_PORT}")
-    await asyncio.Future()  # Keep the server running
+# ---------------------- PARSE SENSOR LINE ----------------------
+def parse_sensor_line(line):
+    data = {}
+    try:
+        if not line.strip() or '|' not in line:
+            return data
 
-# ---------------- AI Chat Service (PORT 8081) ---------------- #
+        key, value = line.split('|', 1)
+        key = key.strip()
+        value = value.strip()
 
-async def handle_chat_client(websocket):
-    """Handle AI chat WebSocket connections."""
-    print(f"New chat client connected: {websocket.remote_address}")
-    chat_clients.add(websocket)
+        if key == "EC": key = "Electrical Conductivity (EC)"
+        elif key.lower() == "ph": key = "pH Level"
+        elif key == "Nitrogen": key = "Nitrogen (N)"
+        elif key == "Phosphorous": key = "Phosphorus (P)"
+        elif key == "Potassium": key = "Potassium (K)"
+        elif key == "Temperature": key = "temperature"
+        elif key == "Humidity": key = "humidity"
+        elif key == "Suggested Crop": key = "Suggested Crop"
 
+        data[key] = value
+    except Exception as e:
+        print(f"Error parsing line: {e}")
+    return data
+
+# ---------------------- HANDLE CLIENT ----------------------
+async def handle_client(websocket):
+    global latest_sensor_data
+    print(f"Client connected: {websocket.remote_address}")
+    clients.add(websocket)
     try:
         async for message in websocket:
-            print(f"Received from chat client: {message}")
-            
-            try:
-                data = json.loads(message)
-                vegetable = data.get("vegetable", "").lower()
-
-                response_text = ai_responses.get(vegetable, "I'm sorry, I don't have information on that vegetable yet.")
-                response = json.dumps({"response": response_text})
-
-                await websocket.send(response)
-                print(f"Sent AI response: {response}")
-
-            except json.JSONDecodeError:
-                await websocket.send(json.dumps({"response": "Invalid request format. Please send JSON."}))
-    except websockets.exceptions.ConnectionClosed:
-        print(f"Chat client {websocket.remote_address} disconnected")
+            if message == "GET_AI_SUGGESTION" and latest_sensor_data:
+                suggestion = await suggest_plants(latest_sensor_data, api_token)
+                await websocket.send(json.dumps({"ai_suggestion": suggestion}))
+    except Exception as e:
+        print(f"Client error: {e}")
     finally:
-        chat_clients.remove(websocket)
+        clients.remove(websocket)
+        print(f"Client disconnected: {websocket.remote_address}")
 
-async def start_chat_server():
-    """Start WebSocket server for AI chat service."""
-    server = await websockets.serve(handle_chat_client, SERVER_HOST, CHAT_PORT)
-    print(f"Chat AI WebSocket server listening on {SERVER_HOST}:{CHAT_PORT}")
-    await asyncio.Future()  # Keep the server running
+# ---------------------- BROADCAST DATA ----------------------
+async def broadcast_sensor_data():
+    global latest_sensor_data
+    full_data = {}
 
-# ---------------- Run Both Servers ---------------- #
+    while True:
+        if arduino.in_waiting:
+            line = arduino.readline().decode('utf-8').strip()
+            print(f"Raw from Arduino: {line}")
 
+            if '|' not in line:
+                continue
+
+            sensor_name, _ = line.split('|', 1)
+            data = parse_sensor_line(line)
+            if data:
+                full_data.update(data)
+
+            if sensor_name.strip() == 'Potassium':
+                await asyncio.sleep(5)
+                if full_data:
+                    latest_sensor_data = ', '.join(f"{k}: {v}" for k, v in full_data.items())
+                    json_data = json.dumps(full_data)
+                    print(f"Sending to clients: {json_data}")
+                    for client in clients.copy():
+                        try:
+                            await client.send(json_data)
+                        except:
+                            clients.remove(client)
+                full_data.clear()
+
+        await asyncio.sleep(0.1)
+
+# ---------------------- MAIN ----------------------
 async def main():
-    """Run both WebSocket servers concurrently."""
-    await asyncio.gather(
-        start_sensor_server(),
-        start_chat_server(),
-        send_sensor_data()
-    )
+    print("Starting WebSocket server on ws://0.0.0.0:8765")
+    async with websockets.serve(handle_client, "0.0.0.0", 8765):
+        await broadcast_sensor_data()
 
 if __name__ == "__main__":
     asyncio.run(main())

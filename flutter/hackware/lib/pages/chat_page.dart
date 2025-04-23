@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return ChatPageState();
@@ -10,49 +13,85 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
-  late WebSocketChannel channel;
   final TextEditingController _controller = TextEditingController();
-  List<Map<String, String>> messages = []; // Stores chat history
+  final WebSocketChannel channel = WebSocketChannel.connect(
+    Uri.parse('ws://10.0.2.2:8765'),  
+  );
 
-  final String webSocketUrl =
-      'ws://192.168.100.106:8081'; //Home URL
+  List<Map<String, String>> messages = [];
+
+  void _sendMessage() {
+    if (_controller.text.isNotEmpty) {
+      String input = _controller.text.trim();
+
+      setState(() {
+        messages.add({"sender": "User", "message": input});
+        messages.add({"sender": "AI", "message": "••• AI is typing..."}); 
+        _controller.clear();
+      });
+
+      _sendMockedResponse(input);  
+    }
+  }
+
+  void _sendMockedResponse(String input) {
+    String mockedResponse;
+
+    switch (input.toLowerCase()) {
+      case "corn":
+        mockedResponse = """
+          Corn (Zea mays) is a warm-season plant that requires plenty of sunlight and well-drained soil.
+          - Temperature: 21-29°C
+          - Humidity: 60-80%
+          - pH: 5.8-7.0
+          - Watering: Needs regular watering, especially in the growing season
+          - EC: 1.5-2.5 dS/m
+        """;
+        break;
+      case "cactus":
+        mockedResponse = """
+          Cactus (Cactaceae) are desert plants that thrive in dry conditions and intense sunlight.
+          - Temperature: 18-30°C (can tolerate higher temperatures)
+          - Humidity: Very low (less than 30%)
+          - pH: 6.0-7.0
+          - Watering: Very little water required, only when the soil is dry
+          - EC: 0.5-1.0 dS/m
+        """;
+        break;
+      case "benjamin":
+        mockedResponse = """
+          Benjamin Fig (Ficus benjamina) is a tropical plant that prefers indirect light and moderate watering.
+          - Temperature: 20-30°C
+          - Humidity: 50-70%
+          - pH: 6.0-7.5
+          - Watering: Regular watering, but allow soil to dry between waterings
+          - EC: 1.0-1.5 dS/m
+        """;
+        break;
+      default:
+        mockedResponse = "Sorry, I don't have information on that plant.";
+    }
+
+   
+    setState(() {
+      messages.removeWhere((msg) => msg["message"] == "••• AI is typing...");
+      messages.add({"sender": "AI", "message": mockedResponse});
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _connectToWebSocket();
-  }
 
-  void _connectToWebSocket() {
-    channel = WebSocketChannel.connect(Uri.parse(webSocketUrl));
-
-    channel.stream.listen(
-      (data) {
-        setState(() {
-          messages.add({"sender": "AI", "message": data});
-        });
-      },
-      onError: (error) {
-        print("WebSocket error: $error");
-      },
-      onDone: () {
-        print("WebSocket connection closed");
-      },
-    );
-  }
-
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      String vegetable = _controller.text.trim();
-
-      // Send vegetable name to AI server
-      channel.sink.add(jsonEncode({"vegetable": vegetable}));
-
+    
+    channel.stream.listen((message) {
+      final response = json.decode(message);
       setState(() {
-        messages.add({"sender": "User", "message": vegetable});
-        _controller.clear();
+        messages.add({"sender": "AI", "message": response["ai_response"]});
       });
-    }
+    }, onError: (error) {
+      print("Error: $error");
+    });
   }
 
   @override
@@ -66,23 +105,22 @@ class ChatPageState extends State<ChatPage> {
     return Scaffold(
       body: Column(
         children: [
-          SizedBox(
-            height: 15,
-          ),
+          const SizedBox(height: 15),
           Container(
             width: 200,
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
               ],
             ),
-            child: Text("Chat with AI",
+            child: const Text("Chat with AI",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -98,15 +136,20 @@ class ChatPageState extends State<ChatPage> {
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                    padding: EdgeInsets.all(10),
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: msg["sender"] == "User"
                           ? Colors.green[200]
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
+                          : msg["message"] == "••• AI is typing..."
+                              ? Colors.grey[100]
+                              : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(msg["message"] ?? ""),
+                    child: Text(
+                      msg["message"] ?? "",
+                      style: const TextStyle(fontSize: 16, fontStyle: FontStyle.normal),
+                    ),
                   ),
                 );
               },
@@ -119,26 +162,26 @@ class ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: Container(
                     height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: TextField(
                       controller: _controller,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintStyle: TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                        hintText: "Enter a vegetable...",
-                        border: UnderlineInputBorder(),
+                            fontSize: 18),
+                        hintText: "Enter a plant (corn, cactus, benjamin)",
+                        border: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.green),
+                  icon: const Icon(Icons.send, color: Colors.green),
                   onPressed: _sendMessage,
                 ),
               ],

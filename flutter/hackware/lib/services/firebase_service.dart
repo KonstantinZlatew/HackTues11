@@ -5,9 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 final String USER_COLLECTION = 'users';
 
 class FirebaseService {
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseStorage _storage = FirebaseStorage.instance;
-  FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   FirebaseService();
 
@@ -18,10 +18,10 @@ class FirebaseService {
       required String email,
       required String password}) async {
     try {
-      UserCredential _userCredential = await _auth
+      UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      String _userId = _userCredential.user!.uid;
-      await _db.collection(USER_COLLECTION).doc(_userId).set({
+      String userId = userCredential.user!.uid;
+      await _db.collection(USER_COLLECTION).doc(userId).set({
         "name": name,
         "email": email,
       });
@@ -36,10 +36,10 @@ class FirebaseService {
   Future<bool> loginUser(
       {required String email, required String password}) async {
     try {
-      UserCredential _userCredential = await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      if (_userCredential.user != null) {
-        currentUser = await getUserData(uid: _userCredential.user!.uid);
+      if (userCredential.user != null) {
+        currentUser = await getUserData(uid: userCredential.user!.uid);
         return true;
       } else {
         return false;
@@ -51,9 +51,9 @@ class FirebaseService {
   }
 
   Future<Map> getUserData({required String uid}) async {
-    DocumentSnapshot _doc =
+    DocumentSnapshot doc =
         await _db.collection(USER_COLLECTION).doc(uid).get();
-    return _doc.data() as Map;
+    return doc.data() as Map;
   }
 
   Future<void> logout() async {

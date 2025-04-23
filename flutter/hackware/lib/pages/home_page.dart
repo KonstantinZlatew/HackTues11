@@ -6,6 +6,8 @@ import 'package:hackware/pages/main_page.dart';
 import 'package:hackware/services/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _HomePageState();
@@ -94,9 +96,9 @@ class _HomePageState extends State<HomePage> {
             selectedItemColor: Colors.green.shade700,
             unselectedItemColor: Colors.grey,
             currentIndex: _currentPage,
-            onTap: (_index) {
+            onTap: (index) {
               setState(() {
-                _currentPage = _index;
+                _currentPage = index;
               });
             },
             items: const [

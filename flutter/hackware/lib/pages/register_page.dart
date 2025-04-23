@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hackware/services/firebase_service.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _RegisterPageState();
@@ -122,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _registrationForm() {
-    return Container(
+    return SizedBox(
       height: _deviceHeight! * 0.37,
       child: Form(
           key: _registerFormState,
@@ -163,11 +165,11 @@ class _RegisterPageState extends State<RegisterPage> {
           labelStyle: TextStyle(
               color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        validator: (_value) =>
-            _value!.length > 0 ? null : "please enter a name.",
-        onSaved: (_value) {
+        validator: (value) =>
+            value!.length > 0 ? null : "please enter a name.",
+        onSaved: (value) {
           setState(() {
-            _name = _value;
+            _name = value;
           });
         },
       ),
@@ -198,19 +200,19 @@ class _RegisterPageState extends State<RegisterPage> {
           labelStyle: TextStyle(
               color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        onSaved: (_value) {
+        onSaved: (value) {
           setState(() {
-            _email = _value;
+            _email = value;
           });
         },
-        validator: (_value) {
-          bool _result = _value!.contains(
+        validator: (value) {
+          bool result = value!.contains(
             RegExp(
                 r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
           );
-          if (_value.length == 0)
+          if (value.length == 0) {
             return "Please enter an email!";
-          else if (!_result)
+          } else if (!result)
             return "Invalid email format";
           else
             return null;
@@ -244,15 +246,15 @@ class _RegisterPageState extends State<RegisterPage> {
             labelStyle: TextStyle(
                 color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24),
           ),
-          onSaved: (_value) {
+          onSaved: (value) {
             setState(() {
-              _password = _value;
+              _password = value;
             });
           },
-          validator: (_value) {
-            if (_value!.length == 0)
+          validator: (value) {
+            if (value!.length == 0) {
               return "Please enter a password!";
-            else if (_value!.length < 6)
+            } else if (value.length < 6)
               return "Enter a password longer than 6 characters";
             else
               return null;
@@ -290,9 +292,9 @@ class _RegisterPageState extends State<RegisterPage> {
   void _registerUser() async {
     if (_registerFormState.currentState!.validate()) {
       _registerFormState.currentState!.save();
-      bool _result = await _firebaseService!
+      bool result = await _firebaseService!
           .registerUser(name: _name!, email: _email!, password: _password!);
-      if (_result) Navigator.pop(context);
+      if (result) Navigator.pop(context);
     }
   }
 }
